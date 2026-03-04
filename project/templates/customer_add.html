@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Add Customer{% endblock title %}
+{% block page_title %}Create Customer{% endblock page_title %}
+
+{% block navbar_action %}
+<a href="{% url 'customer_list' %}" class="nav-btn">
+    Back to List
+</a>
+{% endblock navbar_action %}
+
+{% block content %}
+
+<style>
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --border: #e5e7eb;
+    --text-dark: #111827;
+}
+
+/* ===== CONTAINER ===== */
+.customer-form {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ===== GRID ===== */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 28px;
+}
+
+/* ===== LABEL ===== */
+.customer-form label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ===== INPUT ===== */
+.customer-form input,
+.customer-form select {
+    width: 100%;
+    height: 42px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+}
+
+/* ===== FOCUS ===== */
+.customer-form input:focus,
+.customer-form select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+/* ===== FULL WIDTH ===== */
+.full-width {
+    grid-column: span 2;
+}
+
+/* ===== ACTIONS (LEFT BOTTOM) ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-start;   /* ✅ LEFT aligned */
+    gap: 12px;
+    margin-top: 30px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-save {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: #1e40af;
+}
+
+.btn-cancel {
+    background: #6b7280;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-cancel:hover {
+    background: #4b5563;
+}
+
+/* ===== ERRORS ===== */
+.errorlist li {
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 600;
+}
+</style>
+
+<div class="customer-form">
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+
+            <div>
+                <label>Business Name *</label>
+                {{ form.business_name }}
+            </div>
+
+            <div>
+                <label>Customer Name *</label>
+                {{ form.contact_person }}
+            </div>
+
+            <div>
+                <label>Phone Number *</label>
+                {{ form.phone }}
+            </div>
+
+            <div>
+                <label>Email *</label>
+                {{ form.email }}
+            </div>
+
+            <div>
+                <label>Location *</label>
+                {{ form.location }}
+            </div>
+
+            <div>
+                <label>Customer Type *</label>
+                {{ form.customer_type }}
+            </div>
+
+            <div>
+                <label>Credit Limit (₹)</label>
+                {{ form.credit_limit }}
+            </div>
+
+            <div>
+                <label>Status *</label>
+                {{ form.status }}
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-save">Save Customer</button>
+            <a href="{% url 'customer_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock content %}

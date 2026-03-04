@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Salesperson{% endblock title %}
+{% block page_title %}Edit Salesperson{% endblock page_title %}
+
+{% block navbar_action %}
+<a href="{% url 'salesperson_list' %}" class="nav-btn">
+    Back to List
+</a>
+{% endblock navbar_action %}
+
+{% block content %}
+
+<style>
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --border: #e5e7eb;
+    --text-dark: #111827;
+}
+
+/* ===== CONTAINER ===== */
+.salesperson-form {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ===== GRID ===== */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 28px;
+}
+
+/* ===== LABEL ===== */
+.salesperson-form label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ===== INPUT ===== */
+.salesperson-form input,
+.salesperson-form select {
+    width: 100%;
+    height: 42px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+}
+
+/* ===== READONLY ===== */
+.readonly-field {
+    height: 42px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    font-weight: 600;
+}
+
+/* ===== FOCUS ===== */
+.salesperson-form input:focus,
+.salesperson-form select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+/* ===== ACTIONS ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-save {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: #1e40af;
+}
+
+.btn-cancel {
+    background: #6b7280;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-cancel:hover {
+    background: #4b5563;
+}
+
+/* ===== ERRORS ===== */
+.errorlist li {
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 600;
+}
+</style>
+
+<div class="salesperson-form">
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+
+            <!-- Salesperson Name -->
+            <div>
+                <label>Salesperson Name *</label>
+                {{ form.name }}
+            </div>
+
+            <!-- Employee ID -->
+            <div>
+                <label>Employee ID</label>
+                <div class="readonly-field">
+                    {{ salesperson.id }}
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label>Phone *</label>
+                {{ form.phone }}
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label>Email *</label>
+                {{ form.email }}
+            </div>
+
+            <!-- Region -->
+            <div>
+                <label>Region / Territory *</label>
+                {{ form.region }}
+            </div>
+
+            <!-- Product Category -->
+            <div>
+                <label>Product Category *</label>
+                {{ form.product_category }}
+            </div>
+
+            <!-- Join Date (READONLY) -->
+            <div>
+                <label>Date of Joining *</label>
+                <div class="readonly-field">
+                    {{ salesperson.join_date|date:"d/m/Y" }}
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label>Status *</label>
+                {{ form.status }}
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-save">Update Salesperson</button>
+            <a href="{% url 'salesperson_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock content %}

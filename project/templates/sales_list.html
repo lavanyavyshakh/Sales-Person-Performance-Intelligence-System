@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Sales{% endblock title %}
+{% block page_title %}Sales List{% endblock page_title %}
+
+{% block content %}
+
+<style>
+    .page-header {
+        width: 95%;
+        margin: 10px auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .add-btn {
+        margin-left: auto;
+        padding: 8px 16px;
+        background-color: #2980b9;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    table {
+        width: 95%;
+        margin: 15px auto;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    th {
+        background-color: #2c3e50;
+        color: white;
+    }
+
+    .active { color: green; font-weight: bold; }
+    .inactive { color: red; font-weight: bold; }
+</style>
+
+<div class="page-header">
+    <h2>Sales List</h2>
+    <a href="{% url 'sales_add' %}" class="add-btn">+ Add Sale</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Invoice No</th>
+            <th>Customer</th>
+            <th>Salesperson</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price / Unit</th>
+            <th>Total</th>
+            <th>Sale Date</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for s in sales %}
+        <tr>
+            <td>{{ s.invoice_no }}</td>
+            <td>{{ s.customer }}</td>
+            <td>{{ s.salesperson.name }}</td>
+            <td>{{ s.product.name }}</td>
+            <td>{{ s.quantity }}</td>
+            <td>₹ {{ s.price_per_unit }}</td>
+            <td><strong>₹ {{ s.total_amount }}</strong></td>
+            <td>{{ s.sale_date }}</td>
+            <td>
+                {% if s.status %}
+                    <span class="active">Completed</span>
+                {% else %}
+                    <span class="inactive">Cancelled</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'sales_edit' s.id %}">Edit</a> |
+                <a href="{% url 'sales_delete' s.id %}"
+                   onclick="return confirm('Delete this sale?');">
+                   Delete
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="10">No sales found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

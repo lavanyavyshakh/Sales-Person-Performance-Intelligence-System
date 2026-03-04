@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Customers{% endblock title %}
+{% block page_title %}👥 Customer List{% endblock page_title %}
+
+{% block navbar_action %}
+<a href="{% url 'customer_create' %}" class="nav-btn">
+    + Add Customer
+</a>
+{% endblock navbar_action %}
+
+{% block content %}
+
+<style>
+/* ===== CARD ===== */
+.card-container {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    padding: 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-bar input,
+.filter-bar select {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+}
+
+.btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn.filter {
+    background: #6366f1;
+    color: white;
+}
+
+.btn.clear {
+    background: #6b7280;
+    color: white;
+    text-decoration: none;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #eef2ff;
+    color:black;
+}
+
+th {
+    padding: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ===== STATUS ===== */
+.status.active {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.status.inactive {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+/* ===== TYPE BADGES ===== */
+.badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+}
+
+.badge-retail {
+    background: #22c55e;
+}
+
+.badge-wholesale {
+    background: #0ea5e9;
+}
+
+.badge-distributor {
+    background: #6366f1;
+}
+
+/* ===== ACTIONS ===== */
+.action a {
+    margin: 0 6px;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+    padding: 16px;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pagination a {
+    margin: 0 8px;
+    text-decoration: none;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.pagination span {
+    font-weight: 600;
+}
+</style>
+
+<div class="card-container">
+
+    <!-- ===== FILTER BAR ===== -->
+    <form method="get" class="filter-bar">
+
+        <input type="text"
+               name="business_name"
+               placeholder="Search Business Name"
+               value="{{ business_name|default:'' }}">
+
+        <select name="customer_type">
+            <option value="">All Types</option>
+            <option value="retail" {% if customer_type == "retail" %}selected{% endif %}>Retail</option>
+            <option value="wholesale" {% if customer_type == "wholesale" %}selected{% endif %}>Wholesale</option>
+            <option value="distributor" {% if customer_type == "distributor" %}selected{% endif %}>Distributor</option>
+        </select>
+
+        <select name="status">
+            <option value="">All Status</option>
+            <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
+        </select>
+
+        <button type="submit" class="btn filter">Filter</button>
+        <a href="{% url 'customer_list' %}" class="btn clear">Clear</a>
+    </form>
+
+    <!-- ===== TABLE ===== -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Business Name</th>
+                <th>Contact Person</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Credit Limit</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for customer in page_obj %}
+            <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.business_name }}</td>
+                <td>{{ customer.contact_person }}</td>
+
+                <td>
+                    <span class="badge badge-{{ customer.customer_type }}">
+                        {{ customer.get_customer_type_display }}
+                    </span>
+                </td>
+
+                <td>{{ customer.location }}</td>
+
+                <td>₹ {{ customer.credit_limit|floatformat:0 }}</td>
+
+                <td>
+                    {% if customer.status %}
+                        <span class="status active">Active</span>
+                    {% else %}
+                        <span class="status inactive">Inactive</span>
+                    {% endif %}
+                </td>
+
+                <td class="action">
+                    <a href="{% url 'customer_edit' customer.id %}" title="Edit">✏️</a>
+                    <a href="{% url 'customer_delete' customer.id %}"
+                       title="Delete"
+                       onclick="return confirm('Are you sure?');">🗑️</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No customers found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ===== PAGINATION ===== -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}
+            {% if business_name %}&business_name={{ business_name }}{% endif %}
+            {% if customer_type %}&customer_type={{ customer_type }}{% endif %}
+            {% if status %}&status={{ status }}{% endif %}">
+                ⬅ Previous
+            </a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}
+            {% if business_name %}&business_name={{ business_name }}{% endif %}
+            {% if customer_type %}&customer_type={{ customer_type }}{% endif %}
+            {% if status %}&status={{ status }}{% endif %}">
+                Next ➡
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Target Setting{% endblock %}
+{% block page_title %}Target Setting{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== PAGE GRID ===== */
+.target-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 24px;
+    padding: 10px;
+}
+
+/* ===== CARD ===== */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 22px;
+}
+
+/* ===== HEADERS ===== */
+.card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== FORM ===== */
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* ===== BUTTON ===== */
+.btn-primary {
+    width: 100%;
+    margin-top: 12px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ===== TABLE ===== */
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th{
+    color:black;
+}
+
+.table-wrapper th {
+    background: #eef2ff;
+    padding: 10px;
+    text-align: center;
+    font-weight: 800;
+}
+
+.table-wrapper td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.badge.value {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.badge.quantity {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.action-btn {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    cursor: pointer;
+}
+</style>
+
+<div class="target-grid">
+
+    <!-- ================= LEFT : SET TARGET ================= -->
+    <div class="card">
+        <h3>📅 Set Monthly Target</h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Salesperson *</label>
+                <select name="salesperson" required>
+                    <option value="">---------</option>
+                    {% for sp in salespersons %}
+                    <option value="{{ sp.id }}">{{ sp.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Assigned Product Category</label>
+                <input type="text"
+                       name="product_category"
+                       placeholder="Select a salesperson to view category...">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Month *</label>
+                    <input type="number"
+                           name="month"
+                           value="{{ current_month }}"
+                           min="1" max="12"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label>Year *</label>
+                    <input type="number"
+                           name="year"
+                           value="{{ current_year }}"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Target Type *</label>
+                <select name="target_type" required>
+                    <option value="">---------</option>
+                    <option value="value">Sales Value (₹)</option>
+                    <option value="quantity">Quantity</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Target Value *</label>
+                <input type="number"
+                       name="target_value"
+                       step="0.01"
+                       required>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                🔒 Set Target
+            </button>
+        </form>
+    </div>
+
+    <!-- ================= RIGHT : RECENT TARGETS ================= -->
+    <div class="card">
+        <h3>📋 Recent Monthly Targets</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Salesperson</th>
+                        <th>Month / Year</th>
+                        <th>Type</th>
+                        <th>Target Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for t in targets %}
+                    <tr>
+                        <td>{{ t.salesperson.name }}</td>
+                        <td>{{ t.month }}/{{ t.year }}</td>
+                        <td>
+                            {% if t.target_type == "value" %}
+                                <span class="badge value">Sales Value (₹)</span>
+                            {% else %}
+                                <span class="badge quantity">Quantity</span>
+                            {% endif %}
+                        </td>
+                        <td>₹ {{ t.target_value }}</td>
+                        <td>
+                            <a href="{% url 'weekly_target' t.id %}">
+                                <button class="action-btn">View / Set Weekly</button>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No targets found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

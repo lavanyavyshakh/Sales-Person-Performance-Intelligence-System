@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Future Performance Consistency{% endblock %}
+{% block page_title %}🔮 Future Performance Consistency{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== Table ===== */
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.analytics-table thead {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+}
+
+.analytics-table th,
+.analytics-table td {
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.analytics-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.2s ease;
+}
+
+.analytics-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* ===== Badges ===== */
+.badge-high {
+    background:#bbf7d0;
+    color:#065f46;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+.badge-medium {
+    background:#fde68a;
+    color:#92400e;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+.badge-low {
+    background:#fecaca;
+    color:#7f1d1d;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+/* ===== Score Bar ===== */
+.score-bar {
+    background:#e5e7eb;
+    height:10px;
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:6px;
+}
+
+.score-fill {
+    height:100%;
+    border-radius:999px;
+}
+
+.fill-high { background:#22c55e; }
+.fill-medium { background:#f59e0b; }
+.fill-low { background:#ef4444; }
+
+/* ===== Filter Form ===== */
+.filter-box {
+    margin-bottom: 20px;
+}
+.filter-box button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+}
+</style>
+
+<!-- ===== SELECT MONTH ===== -->
+<div class="filter-box">
+    <form method="get">
+        <label><strong>Select Month:</strong></label>
+        <input type="month" name="month" required value="{{ selected_month }}">
+        <button type="submit">Predict</button>
+    </form>
+</div>
+
+<!-- ===== TABLE ===== -->
+<table class="analytics-table">
+<thead>
+<tr>
+    <th>Salesperson</th>
+    <th>Target (₹)</th>
+    <th>Predicted Achieved (₹)</th>
+    <th>Consistency</th>
+    <th>Score</th>
+</tr>
+</thead>
+
+<tbody>
+{% if results %}
+{% for r in results %}
+<tr>
+    <td><strong>{{ r.salesperson }}</strong></td>
+    <td>₹ {{ r.target }}</td>
+    <td>₹ {{ r.predicted }}</td>
+
+    <td>
+        {% if r.consistency == "High" %}
+            <span class="badge-high">High</span>
+        {% elif r.consistency == "Medium" %}
+            <span class="badge-medium">Medium</span>
+        {% else %}
+            <span class="badge-low">Low</span>
+        {% endif %}
+    </td>
+
+    <td>
+        {{ r.score }}%
+        <div class="score-bar">
+            <div class="score-fill
+                {% if r.score > 65 %}fill-high
+                {% elif r.score > 35 %}fill-medium
+                {% else %}fill-low{% endif %}"
+                style="width: {{ r.score }}%;">
+            </div>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% else %}
+<tr>
+    <td colspan="5">No data available</td>
+</tr>
+{% endif %}
+</tbody>
+</table>
+
+{% endblock %}

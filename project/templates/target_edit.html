@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Target{% endblock %}
+{% block page_title %}Edit Target{% endblock %}
+
+{% block content %}
+
+<style>
+.edit-container {
+    max-width: 500px;
+    margin: 40px auto;
+}
+
+.edit-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.edit-card label {
+    font-weight: 600;
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 6px;
+}
+
+.edit-card input,
+.edit-card select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.update-btn {
+    margin-top: 25px;
+    width: 100%;
+    background: #2980b9;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #555;
+}
+</style>
+
+<div class="edit-container">
+    <div class="edit-card">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Salesperson</label>
+            <select name="salesperson" required>
+                {% for s in salespersons %}
+                <option value="{{ s.id }}"
+                    {% if target.salesperson.id == s.id %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label>Product Category</label>
+            <input type="text"
+                   name="product_category"
+                   value="{{ target.product_category }}"
+                   required>
+
+            <label>Month</label>
+            <input type="number"
+                   name="month"
+                   min="1"
+                   max="12"
+                   value="{{ target.month }}"
+                   required>
+
+            <label>Year</label>
+            <input type="number"
+                   name="year"
+                   value="{{ target.year }}"
+                   required>
+
+            <label>Target Type</label>
+            <select name="target_type">
+                <option value="value"
+                    {% if target.target_type == "value" %}selected{% endif %}>
+                    Sales Value (₹)
+                </option>
+                <option value="quantity"
+                    {% if target.target_type == "quantity" %}selected{% endif %}>
+                    Quantity
+                </option>
+            </select>
+
+            <label>Target Value</label>
+            <input type="number"
+                   name="target_value"
+                   value="{{ target.target_value }}"
+                   required>
+
+            <button type="submit" class="update-btn">
+                Update Target
+            </button>
+
+            <a href="{% url 'target_setting' %}" class="cancel-link">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

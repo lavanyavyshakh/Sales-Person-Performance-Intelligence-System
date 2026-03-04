@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Consistency{% endblock %}
+{% block page_title %}📈 Performance Consistency{% endblock %}
+
+{% block content %}
+
+<style>
+.card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background: #eef2ff;
+    font-weight: 700;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 10px;
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+/* 🔥 Consistency Bar */
+.progress-container {
+    background: #e5e7eb;
+    border-radius: 10px;
+    height: 14px;
+    width: 100%;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* 🎨 Color Rules */
+.bar-green { background: #22c55e; }   /* 80–100 */
+.bar-blue { background: #3b82f6; }    /* 60–79 */
+.bar-orange { background: #f97316; }  /* 40–59 */
+.bar-red { background: #ef4444; }     /* <40 */
+</style>
+
+
+<div class="card">
+    <h2>📈 Performance Consistency</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Salesperson</th>
+                <th>Consistency Score</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for row in page_obj %}
+    <tr>
+        <td>{{ row.salesperson }}</td>
+        <td>
+            <strong>{{ row.consistency }}%</strong>
+
+            <div class="progress-container">
+                <div class="progress-bar
+                    {% if row.consistency >= 80 %}
+                        bar-green
+                    {% elif row.consistency >= 60 %}
+                        bar-blue
+                    {% elif row.consistency >= 40 %}
+                        bar-orange
+                    {% else %}
+                        bar-red
+                    {% endif %}"
+                    style="width: {{ row.consistency }}%;">
+                </div>
+            </div>
+
+            <small style="color:gray;">{{ row.label }}</small>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="2">No data available</td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+    </table>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">⬅ Previous</a>
+        {% endif %}
+
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next ➡</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

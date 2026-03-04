@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Products{% endblock title %}
+{% block page_title %}📦 Product List{% endblock page_title %}
+
+{% block navbar_action %}
+<a href="{% url 'product_add' %}" class="nav-btn">
+    + Add Product
+</a>
+{% endblock navbar_action %}
+
+{% block content %}
+
+<style>
+.card-container {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+/* FILTER BAR */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    padding: 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-bar input,
+.filter-bar select {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn.filter {
+    background: #6366f1;
+    color: white;
+}
+
+.btn.clear {
+    background: #6b7280;
+    color: white;
+    text-decoration: none;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #eef2ff;
+}
+
+th {
+    font-weight: 900;
+    color: #000;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* STATUS */
+.status.active {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.status.inactive {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* ACTION */
+.action a {
+    margin: 0 6px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* PAGINATION */
+.pagination {
+    padding: 16px;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pagination a {
+    margin: 0 8px;
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+}
+/* ACTION COLUMN */
+.action {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ICON BUTTON BASE */
+.icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* EDIT BUTTON */
+.edit-btn {
+    background-color: #e0f2fe;   /* light blue */
+    color: #0369a1;
+}
+
+.edit-btn:hover {
+    background-color: #bae6fd;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+    background-color: #fee2e2;   /* light red */
+    color: #b91c1c;
+}
+
+.delete-btn:hover {
+    background-color: #fecaca;
+}
+/* CATEGORY PILL (exact like image) */
+.category-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: #0ea5e9;   /* light cyan */
+    color: white;              /* blue text */
+    text-transform: lowercase;
+}
+</style>
+
+<div class="card-container">
+
+    <!-- FILTER BAR -->
+    <form method="get" class="filter-bar">
+
+        <input type="text"
+               name="name"
+               placeholder="Search Product Name"
+               value="{{ name|default:'' }}">
+
+        <select name="material_type">
+            <option value="">All Materials</option>
+            {% for key, value in material_choices %}
+                <option value="{{ key }}" {% if material_type == key %}selected{% endif %}>
+                    {{ value }}
+                </option>
+            {% endfor %}
+        </select>
+
+
+        <select name="status">
+            <option value="">All Status</option>
+            <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
+        </select>
+
+        <button type="submit" class="btn filter">Filter</button>
+        <a href="{% url 'product_list' %}" class="btn clear">Clear</a>
+
+    </form>
+
+    <!-- TABLE -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Material</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Price / Unit</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for product in page_obj %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.get_material_type_display }}</td>
+                <td>
+                    <span class="category-pill">
+                    {{ product.category|lower }}
+                    </span>
+                </td>
+
+                <td>{{ product.get_unit_type_display }}</td>
+                <td>₹ {{ product.price_per_unit }}</td>
+                <td>
+                    {% if product.status %}
+                        <span class="status active">Active</span>
+                    {% else %}
+                        <span class="status inactive">Inactive</span>
+                    {% endif %}
+                </td>
+               <td class="action">
+    <a href="{% url 'product_edit' product.id %}"
+       class="icon-btn edit-btn"
+       title="Edit">
+        ✏️
+    </a>
+
+    <a href="{% url 'product_delete' product.id %}"
+       class="icon-btn delete-btn"
+       title="Delete"
+       onclick="return confirm('Are you sure?');">
+        🗑️
+    </a>
+</td>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No products found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}
+            {% if name %}&name={{ name }}{% endif %}
+            {% if material_type %}&material_type={{ material_type }}{% endif %}
+            {% if status %}&status={{ status }}{% endif %}">
+                ⬅ Previous
+            </a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}
+            {% if name %}&name={{ name }}{% endif %}
+            {% if material_type %}&material_type={{ material_type }}{% endif %}
+            {% if status %}&status={{ status }}{% endif %}">
+                Next ➡
+            </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock content %}

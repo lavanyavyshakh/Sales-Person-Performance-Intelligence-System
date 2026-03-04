@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Analytics{% endblock %}
+{% block page_title %}📊 AI Performance Analytics{% endblock %}
+
+{% block content %}
+
+<style>
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.analytics-card {
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analytics-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+.analytics-card h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.analytics-card p {
+    margin-top: 10px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.analytics-card a {
+    display: inline-block;
+    margin-top: 18px;
+    text-decoration: none;
+    font-weight: 700;
+    color: #6366f1;
+}
+
+.analytics-card a:hover {
+    text-decoration: underline;
+}
+
+/* Special styling for Future Performance card */
+.future-card {
+    text-align: left;
+}
+
+.future-links {
+    margin-top: 20px;
+}
+
+.future-links a {
+    display: block;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+</style>
+
+<div class="analytics-grid">
+
+    <!-- 🎯 Target Miss Prediction -->
+    <div class="analytics-card">
+        <h2>🎯 Target Miss Prediction</h2>
+        <p>AI predicts risk of missing sales targets</p>
+        <a href="{% url 'target_miss_view' %}">
+            View Prediction →
+        </a>
+    </div>
+
+    <!-- 📈 Performance Consistency -->
+    <div class="analytics-card">
+        <h2>📈 Performance Consistency</h2>
+        <p>AI evaluates salesperson consistency</p>
+        <a href="{% url 'analysis_consistency' %}">
+            View Consistency →
+        </a>
+    </div>
+
+    <!-- ⭐ Focus Accounts -->
+    <div class="analytics-card">
+        <h2>⭐ Focus Accounts</h2>
+        <p>AI identifies high-priority customers</p>
+        <a href="{% url 'analysis_focus_accounts' %}">
+            View Accounts →
+        </a>
+    </div>
+
+    <!-- 🧠 Future Performance Analysis -->
+    <div class="analytics-card future-card">
+        <h2>🧠 Future Performance Analysis</h2>
+        <p>AI predicts future salesperson performance</p>
+
+        <div class="future-links">
+            <a href="{% url 'future_target_miss' %}">
+                🎯 Future Target Miss →
+            </a>
+
+            <a href="{% url 'future_consistency' %}">
+                📈 Future Consistency →
+            </a>
+
+            <a href="{% url 'future_focus_accounts' %}">
+                ⭐ Future Focus Accounts →
+            </a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Future Focus Accounts{% endblock %}
+{% block page_title %}⭐ Future Focus Accounts{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== Table ===== */
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.analytics-table thead {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+}
+
+.analytics-table th,
+.analytics-table td {
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.analytics-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.2s ease;
+}
+
+.analytics-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* ===== Priority Badges ===== */
+.badge-high {
+    background:#bbf7d0;
+    color:#065f46;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+.badge-medium {
+    background:#fde68a;
+    color:#92400e;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+.badge-low {
+    background:#fecaca;
+    color:#7f1d1d;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+/* ===== Confidence Bar ===== */
+.confidence-bar {
+    background: #e5e7eb;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.confidence-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.fill-high { background: #22c55e; }
+.fill-medium { background: #f59e0b; }
+.fill-low { background: #ef4444; }
+
+/* ===== Filter Form ===== */
+.filter-box {
+    margin-bottom: 20px;
+}
+.filter-box button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+}
+</style>
+
+<div class="filter-box">
+    <form method="get">
+        <label><strong>Select Month:</strong></label>
+        <input type="month" name="month" required value="{{ selected_month }}">
+        <button type="submit">Predict</button>
+    </form>
+</div>
+
+<table class="analytics-table">
+<thead>
+<tr>
+    <th>Salesperson</th>
+    <th>Total Sales (₹)</th>
+    <th>Predicted Value (₹)</th>
+    <th>Priority</th>
+    <th>Confidence</th>
+</tr>
+</thead>
+
+<tbody>
+{% if results %}
+{% for r in results %}
+<tr>
+    <td><strong>{{ r.salesperson }}</strong></td>
+    <td>₹ {{ r.total }}</td>
+    <td>₹ {{ r.predicted }}</td>
+
+    <td>
+        {% if r.priority == "High" %}
+            <span class="badge-high">High</span>
+        {% elif r.priority == "Medium" %}
+            <span class="badge-medium">Medium</span>
+        {% else %}
+            <span class="badge-low">Low</span>
+        {% endif %}
+    </td>
+
+    <td>
+        {{ r.confidence }}%
+        <div class="confidence-bar">
+            <div class="confidence-fill
+                {% if r.confidence > 65 %}fill-high
+                {% elif r.confidence > 50 %}fill-medium
+                {% else %}fill-low{% endif %}"
+                style="width: {{ r.confidence }}%;">
+            </div>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% else %}
+<tr>
+    <td colspan="5">No data available</td>
+</tr>
+{% endif %}
+</tbody>
+</table>
+
+{% endblock %}

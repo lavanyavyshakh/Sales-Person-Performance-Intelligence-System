@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Sale{% endblock title %}
+{% block page_title %}Edit Sale{% endblock page_title %}
+
+{% block content %}
+
+<div class="form-box">
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Invoice No</label>
+        <input type="text" name="invoice_no" value="{{ sale.invoice_no }}" required>
+
+        <label>Customer</label>
+        <select name="customer" required>
+            {% for c in customers %}
+            <option value="{{ c.id }}" {% if sale.customer.id == c.id %}selected{% endif %}>
+                {{ c.business_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Salesperson</label>
+        <select name="salesperson" required>
+            {% for s in salespersons %}
+            <option value="{{ s.id }}" {% if sale.salesperson.id == s.id %}selected{% endif %}>
+                {{ s.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Product</label>
+        <select name="product" required>
+            {% for p in products %}
+            <option value="{{ p.id }}" {% if sale.product.id == p.id %}selected{% endif %}>
+                {{ p.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Quantity</label>
+        <input type="number" name="quantity" value="{{ sale.quantity }}" required>
+
+        <label>Price Per Unit</label>
+        <input type="number" step="0.01" name="price_per_unit"
+               value="{{ sale.price_per_unit }}" required>
+
+        <label>Sale Date</label>
+        <input type="date" name="sale_date"
+               value="{{ sale.sale_date|date:'Y-m-d' }}" required>
+
+        <label>Status</label>
+        <select name="status">
+            <option value="1" {% if sale.status %}selected{% endif %}>Completed</option>
+            <option value="0" {% if not sale.status %}selected{% endif %}>Cancelled</option>
+        </select>
+
+        <button type="submit">Update Sale</button>
+    </form>
+</div>
+
+{% endblock content %}

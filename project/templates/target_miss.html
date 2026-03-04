@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Target Miss Prediction{% endblock %}
+{% block page_title %}🎯 Target Miss Prediction{% endblock %}
+
+{% block content %}
+
+<style>
+.card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background: #eef2ff;
+    font-weight: 700;
+}
+
+.badge-hit {
+    background: #dcfce7;
+    color: #166534;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.badge-risk {
+    background: #ffedd5;
+    color: #9a3412;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.badge-miss {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* === Risk bar (same style as consistency) === */
+.risk-progress {
+    width: 100%;
+    height: 14px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 6px 0;
+}
+
+.risk-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.risk-green { background: #22c55e; }   /* Hit */
+.risk-orange { background: #f97316; }  /* At Risk */
+.risk-red { background: #ef4444; }     /* Miss */
+
+.risk-percent {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.risk-label {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 10px;
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+}
+</style>
+
+<div class="card">
+    <h2>📊 Target Miss Prediction</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Salesperson</th>
+                <th>Target (₹)</th>
+                <th>Achieved (₹)</th>
+                <th>Prediction</th>
+                <th>Risk %</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for row in page_obj %}
+            <tr>
+                <td>{{ row.salesperson }}</td>
+                <td>₹ {{ row.target }}</td>
+                <td>₹ {{ row.achieved }}</td>
+
+                <td>
+                    {% if row.prediction == "Miss" %}
+                        <span class="badge-miss">Miss</span>
+                    {% elif row.prediction == "At Risk" %}
+                        <span class="badge-risk">At Risk</span>
+                    {% else %}
+                        <span class="badge-hit">Hit</span>
+                    {% endif %}
+                </td>
+
+                <!-- ✅ RISK BAR COLUMN -->
+                <td style="min-width:220px;">
+                    <div class="risk-percent">{{ row.risk }}%</div>
+
+                    <div class="risk-progress">
+                        <div class="risk-progress-fill
+                            {% if row.risk == 100 %}
+                                risk-green
+                            {% elif row.risk >= 21 %}
+                                risk-orange
+                            {% else %}
+                                risk-red
+                            {% endif %}"
+                            style="width: {{ row.risk }}%;">
+                        </div>
+                    </div>
+
+                    <div class="risk-label">
+                        {% if row.risk == 100 %}
+                            Hit
+                        {% elif row.risk >= 21 %}
+                            At Risk
+                        {% else %}
+                            Miss
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No prediction data available</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">⬅ Previous</a>
+        {% endif %}
+
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next ➡</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Salesperson List{% endblock title %}
+{% block page_title %}Salesperson List{% endblock page_title %}
+{% block navbar_action %}
+<a href="{% url 'salesperson_add' %}" class="nav-btn">
+    + Add Salesperson
+</a>
+{% endblock navbar_action %}
+
+{% block content %}
+
+<style>
+.card-container {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* FILTER BAR */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-bar input,
+.filter-bar select {
+    height: 38px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn.filter {
+    background: #6366f1;
+    color: #ffffff;
+}
+
+.btn.clear {
+    background: #6b7280;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #eef2ff;
+}
+
+th {
+    padding: 12px;
+    text-align: center;
+    font-weight: 700;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* PRODUCT CATEGORY BADGE */
+.badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+}
+
+.badge-cotton { background: #3b82f6; }
+.badge-silk { background: #8b5cf6; }
+.badge-synthetic { background: #06b6d4; }
+.badge-wool { background: #22c55e; }
+
+/* STATUS */
+.status {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ACTION ICONS */
+.action a {
+    margin: 0 6px;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+/* PAGINATION */
+.pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pagination a,
+.pagination span {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.pagination span {
+    background: #6366f1;
+    color: #ffffff;
+    border-color: #6366f1;
+}
+</style>
+
+<div class="card-container">
+
+    <!-- FILTER BAR -->
+    <form method="get" class="filter-bar">
+
+        <input type="text"
+               name="search"
+               placeholder="Search Name / Region / Product Category"
+               value="{{ search|default:'' }}">
+
+        <select name="status">
+            <option value="">All Status</option>
+            <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
+        </select>
+
+        <button type="submit" class="btn filter">Filter</button>
+        <a href="{% url 'salesperson_list' %}" class="btn clear">Clear</a>
+
+    </form>
+
+    <!-- TABLE -->
+    <table>
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Region</th>
+                <th>Product Category</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Join Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for sp in page_obj %}
+            <tr>
+                <td>{{ sp.id }}</td>
+                <td>{{ sp.name }}</td>
+                <td>{{ sp.region }}</td>
+
+                <td>
+                    <span class="badge badge-{{ sp.product_category }}">
+                        {{ sp.get_product_category_display }}
+                    </span>
+                </td>
+
+                <td>{{ sp.phone }}</td>
+                <td>{{ sp.email }}</td>
+                <td>{{ sp.join_date|date:"M d, Y" }}</td>
+
+                <td>
+                    {% if sp.status %}
+                        <span class="status active">Active</span>
+                    {% else %}
+                        <span class="status inactive">Inactive</span>
+                    {% endif %}
+                </td>
+
+                <td class="action">
+                    <a href="{% url 'salesperson_edit' sp.id %}" title="Edit">✏️</a>
+                    <a href="{% url 'salesperson_delete' sp.id %}"
+                       title="Delete"
+                       onclick="return confirm('Are you sure?');">🗑️</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">No salespersons found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}
+                {% if search %}&search={{ search }}{% endif %}
+                {% if status %}&status={{ status }}{% endif %}">
+                ◀ Prev
+            </a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}
+                {% if search %}&search={{ search }}{% endif %}
+                {% if status %}&status={{ status }}{% endif %}">
+                Next ▶
+            </a>
+        {% endif %}
+
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock content %}

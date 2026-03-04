@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Future Target Miss Prediction{% endblock %}
+{% block page_title %}🔮 Future Target Miss Prediction{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== Table ===== */
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.analytics-table thead {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+}
+
+.analytics-table th,
+.analytics-table td {
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.analytics-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.2s ease;
+}
+
+.analytics-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* ===== Badges ===== */
+.badge-hit {
+    background:#bbf7d0;
+    color:#065f46;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+.badge-risk {
+    background:#fecaca;
+    color:#7f1d1d;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:600;
+}
+
+/* ===== Filter Form ===== */
+.filter-box {
+    margin-bottom: 20px;
+}
+.filter-box button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+}
+</style>
+
+<!-- ===== SELECT MONTH ===== -->
+<div class="filter-box">
+    <form method="get">
+        <label><strong>Select Month:</strong></label>
+        <input type="month" name="month" required value="{{ selected_month }}">
+        <button type="submit">Predict</button>
+    </form>
+</div>
+
+<!-- ===== TABLE ===== -->
+<table class="analytics-table">
+    <thead>
+        <tr>
+            <th>Salesperson</th>
+            <th>Target (₹)</th>
+            <th>Predicted Achieved (₹)</th>
+            <th>Prediction</th>
+            <th>Risk %</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% if results %}
+            {% for r in results %}
+            <tr>
+                <td><strong>{{ r.salesperson }}</strong></td>
+                <td>₹ {{ r.target|floatformat:2 }}</td>
+                <td>₹ {{ r.predicted|floatformat:2 }}</td>
+                <td>
+                    {% if r.prediction == "Hit" %}
+                        <span class="badge-hit">Hit</span>
+                    {% else %}
+                        <span class="badge-risk">At Risk</span>
+                    {% endif %}
+                </td>
+                <td>{{ r.risk }}%</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="5">No prediction data available</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+Create Sale Invoice
+{% endblock page_title %}
+
+{% block content %}
+
+<style>
+.invoice-card {
+    width: 95%;
+    margin: auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+}
+
+input[readonly] {
+    background: #f3f4f6;
+}
+
+.top-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.field {
+    flex: 1;
+}
+
+.field label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+}
+
+.details-table th {
+    text-align: left;
+    padding: 12px;
+    background: #f9fafb;
+    width: 15%;
+}
+
+.details-table td {
+    padding: 12px;
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-add {
+    background: #6366f1;
+    color: white;
+}
+
+.btn-remove {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-save {
+    background: #22c55e;
+    color: white;
+    padding: 10px 22px;
+    font-size: 16px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-table thead {
+    background: #eef2ff;
+}
+
+.product-table th,
+.product-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.row-total {
+    background: #f3f4f6;
+    font-weight: 600;
+    text-align: center;
+}
+
+.grand-total {
+    text-align: right;
+    margin-top: 18px;
+    font-size: 20px;
+    font-weight: 700;
+}
+</style>
+
+<div class="invoice-card">
+<form method="post">
+{% csrf_token %}
+
+<!-- ================= TOP ================= -->
+<div class="top-row">
+    <div class="field">
+        <label>Invoice Number</label>
+        {{ invoice_form.invoice_number }}
+    </div>
+
+    <!-- ✅ FIXED SALE DATE -->
+    <div class="field">
+        <label>Sale Date</label>
+        {{ invoice_form.sale_date }}
+    </div>
+</div>
+
+<!-- ================= DETAILS ================= -->
+<table class="details-table">
+<tr>
+    <th>Salesperson</th>
+    <td>{{ invoice_form.salesperson }}</td>
+
+    <th>Customer</th>
+    <td>{{ invoice_form.customer }}</td>
+</tr>
+
+<tr>
+    <th>Sale Type</th>
+    <td>{{ invoice_form.sale_type }}</td>
+
+    <th>Remarks</th>
+    <td>
+        {{ invoice_form.remarks }}
+    </td>
+</tr>
+</table>
+
+<hr>
+
+<!-- ================= PRODUCTS ================= -->
+<div class="product-header">
+    <h4>👜 Product Details</h4>
+    <button type="button" class="btn btn-add" id="add-row-btn">
+        + Add Product
+    </button>
+</div>
+
+{{ item_formset.management_form }}
+
+<table class="product-table">
+<thead>
+<tr>
+    <th>No.</th>
+    <th>Product</th>
+    <th>Qty</th>
+    <th>Price (₹)</th>
+    <th>Total (₹)</th>
+    <th>Action</th>
+</tr>
+</thead>
+
+<tbody id="items-body">
+{% for form in item_formset %}
+<tr class="item-row">
+    <td class="row-no">{{ forloop.counter }}</td>
+
+    <td>{{ form.product }}</td>
+    <td>{{ form.quantity }}</td>
+    <td>{{ form.price }}</td>
+
+    <td>
+        <input type="text" class="row-total" value="0.00" readonly>
+    </td>
+
+    <td>
+        {{ form.DELETE }}
+        <button type="button" class="btn btn-remove remove-row">🗑</button>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<div class="grand-total">
+    Grand Total: ₹ <span id="grand-total">0.00</span>
+</div>
+
+<br>
+<button type="submit" class="btn btn-save">💾 Save Invoice</button>
+
+</form>
+</div>
+
+<!-- ================= JS (UNCHANGED) ================= -->
+<script>
+/* inject product prices safely */
+document.querySelectorAll('select[name$="-product"] option').forEach(opt => {
+    {% for p in products %}
+    if (opt.value === "{{ p.id }}") {
+        opt.dataset.price = "{{ p.price_per_unit }}";
+    }
+    {% endfor %}
+});
+
+function updateRowNumbers() {
+    document.querySelectorAll(".item-row").forEach((row, i) => {
+        row.querySelector(".row-no").innerText = i + 1;
+    });
+}
+
+function updateRowTotal(row) {
+    const qty = row.querySelector('input[name$="-quantity"]');
+    const price = row.querySelector('input[name$="-price"]');
+    const total = row.querySelector(".row-total");
+
+    const q = parseFloat(qty.value || 0);
+    const p = parseFloat(price.value || 0);
+
+    total.value = (q * p).toFixed(2);
+}
+
+function updateGrandTotal() {
+    let sum = 0;
+    document.querySelectorAll(".row-total").forEach(el => {
+        sum += parseFloat(el.value || 0);
+    });
+    document.getElementById("grand-total").innerText = sum.toFixed(2);
+}
+
+/* auto price on product select */
+document.addEventListener("change", function(e) {
+    if (e.target.name && e.target.name.endsWith("-product")) {
+        const row = e.target.closest("tr");
+        const priceInput = row.querySelector('input[name$="-price"]');
+        priceInput.value = e.target.selectedOptions[0].dataset.price || 0;
+        updateRowTotal(row);
+        updateGrandTotal();
+    }
+});
+
+/* qty / price change */
+document.addEventListener("input", function(e) {
+    if (e.target.name && (e.target.name.endsWith("-quantity") || e.target.name.endsWith("-price"))) {
+        const row = e.target.closest("tr");
+        updateRowTotal(row);
+        updateGrandTotal();
+    }
+});
+
+/* add row */
+document.getElementById("add-row-btn").onclick = function() {
+    const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
+    const index = parseInt(totalForms.value);
+
+    const tbody = document.getElementById("items-body");
+    const template = tbody.querySelector(".item-row");
+    const newRow = template.cloneNode(true);
+
+    newRow.querySelectorAll("input, select").forEach(el => {
+        if (el.name) el.name = el.name.replace("-0-", `-${index}-`);
+        if (el.id) el.id = el.id.replace("-0-", `-${index}-`);
+        el.value = "";
+    });
+
+    newRow.querySelector(".row-total").value = "0.00";
+    tbody.appendChild(newRow);
+    totalForms.value = index + 1;
+
+    updateRowNumbers();
+};
+
+document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("remove-row")) {
+        const row = e.target.closest("tr");
+        row.querySelector('input[name$="-DELETE"]').checked = true;
+        row.style.display = "none";
+        updateGrandTotal();
+    }
+});
+
+updateRowNumbers();
+updateGrandTotal();
+</script>
+
+{% endblock content %}
